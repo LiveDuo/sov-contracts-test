@@ -5,7 +5,6 @@ use sov_modules_api::prelude::*;
 use sov_modules_api::{CallResponse, WorkingSet};
 #[cfg(feature = "native")]
 use sov_modules_api::macros::CliWalletArg;
-use thiserror::Error;
 
 use wasmi::{Engine, Linker, Module, Store};
 
@@ -40,7 +39,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
 
         let linker = <Linker<u32>>::new(&engine);
         let mut store = Store::new(&engine, 42);
-        let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrao();
+        let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
 
         let fib = instance.get_typed_func::<i32, i32>(&store, "fib").unwrap();
         let res = fib.call(&mut store, 5).unwrap();

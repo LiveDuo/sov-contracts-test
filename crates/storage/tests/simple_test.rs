@@ -19,13 +19,17 @@ fn simple_test() {
   let module: ExampleModule<DefaultContext> = ExampleModule::default();
   module.genesis(&ExampleModuleConfig {}, &mut working_set).unwrap();
 
+  // check response
+  let response = module.query_value(&mut working_set).unwrap();
+  dbg!(response);
+
   // call module
   let update_message = CallMessage::SetValue(100);
   module.call(update_message, &sender_context, &mut working_set).unwrap();
 
   // check response
-  let response = module.query_value(&mut working_set);
-  dbg!(response.unwrap());
+  let response = module.query_value(&mut working_set).unwrap();
+  dbg!(response);
 
 }
 

@@ -11,10 +11,6 @@ use wasmi::{Engine, Linker, Module, Store};
 
 use crate::ExampleModule;
 
-/// This enumeration represents the available call messages for interacting with
-/// the `ExampleModule` module.
-/// The `derive` for [`schemars::JsonSchema`] is a requirement of
-/// [`sov_modules_api::ModuleCallJsonSchema`].
 #[cfg_attr(
     feature = "native",
     derive(serde::Serialize),
@@ -27,12 +23,9 @@ pub enum CallMessage {
     RunWasm(Vec<u8>),
 }
 
-/// Example of a custom error.
-#[derive(Debug, Error)]
-enum SetValueError {}
-
+// NOTE compiling takes too long
 impl<C: sov_modules_api::Context> ExampleModule<C> {
-    /// Sets `value` field to the `wasm`
+
     pub(crate) fn run_wasm(
         &self,
         wasm: Vec<u8>,
@@ -42,27 +35,17 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
 
         let engine = Engine::default();
 
-        // NOTE makes compiling to hang
-        // // Derived from the wasmi example: https://docs.rs/wasmi/0.29.0/wasmi/#example
-        // let module = Module::new(&engine, &mut &wasm[..]).expect("Failed to create module");
-        // type HostState = u32;
+        // https://docs.rs/wasmi/0.29.0/wasmi/#example
+        let module = Module::new(&engine, &mut &wasm[..]).unwrap();
 
-        // let linker = <Linker<HostState>>::new(&engine);
-        // let mut store = Store::new(&engine, 42);
-        // let instance = linker
-        //     .instantiate(&mut store, &module)
-        //     .expect("failed to instantiate")
-        //     .start(&mut store)
-        //     .expect("Failed to start");
+        let linker = <Linker<u32>>::new(&engine);
+        let mut store = Store::new(&engine, 42);
+        let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrao();
 
-        // let fib = instance
-        //     .get_typed_func::<i32, i32>(&store, "fib")
-        //     .expect("Failed to get typed_func");
-        // let res = fib.call(&mut store, 2).expect("Failed to call");
-        let res = 2;
+        let fib = instance.get_typed_func::<i32, i32>(&store, "fib").unwrap();
+        let res = fib.call(&mut store, 5).unwrap();
         
         self.value.set(&res, working_set);
-        working_set.add_event("set", &format!("run_wasm: {res:?}"));
 
         Ok(CallResponse::default())
     }

@@ -14,11 +14,9 @@ pub struct Response {
 
 #[rpc_gen(client, server, namespace = "storage")]
 impl<C: sov_modules_api::Context> ExampleModule<C> {
-    /// Queries the state of the module.
+    
     #[rpc_method(name = "getValue")]
     pub fn query_value(&self, working_set: &mut WorkingSet<C>) -> RpcResult<Response> {
-        Ok(Response {
-            value: self.value.get(working_set),
-        })
+        Ok(Response { value: self.value.get(working_set) })
     }
 }

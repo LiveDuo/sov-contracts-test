@@ -40,7 +40,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         working_set: &mut WorkingSet<C>,
     ) -> Result<sov_modules_api::CallResponse> {
 
-        // let engine = Engine::default();
+        let engine = Engine::default();
 
         // // Derived from the wasmi example: https://docs.rs/wasmi/0.29.0/wasmi/#example
         // let module = Module::new(&engine, &mut &wasm[..]).expect("Failed to create module");

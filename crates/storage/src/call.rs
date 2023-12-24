@@ -7,7 +7,7 @@ use sov_modules_api::{CallResponse, WorkingSet};
 use sov_modules_api::macros::CliWalletArg;
 use thiserror::Error;
 
-// use wasmi::{Engine, Linker, Module, Store};
+use wasmi::{Engine, Linker, Module, Store};
 
 use crate::ExampleModule;
 
@@ -40,33 +40,34 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         working_set: &mut WorkingSet<C>,
     ) -> Result<sov_modules_api::CallResponse> {
 
-        // let wat = r#"
-        //     (module
-        //         (export "fib" (func $fib))
-        //         (func $fib (; 0 ;) (param $0 i32) (result i32)
-        //             (local $1 i32)
-        //             (local $2 i32)
-        //             (local $3 i32)
-        //             (local $4 i32)
-        //             (set_local $4 (i32.const 1))
-        //             (block $label$0
-        //                 (br_if $label$0 (i32.lt_s (get_local $0) (i32.const 1)))
-        //                 (set_local $3 (i32.const 0))
-        //                 (loop $label$1
-        //                 (set_local $1
-        //                 (i32.add (get_local $3) (get_local $4))
-        //             )
-        //             (set_local $2 (get_local $4))
-        //             (set_local $3 (get_local $4))
-        //             (set_local $4 (get_local $1))
-        //             (br_if $label$1 (tee_local $0 (i32.add (get_local $0) (i32.const -1)))))
-        //             (return (get_local $2))
-        //         )
-        //         (i32.const 0)
-        //     )
-        // )
-        // "#;
+        let _wat = r#"
+            (module
+                (export "fib" (func $fib))
+                (func $fib (; 0 ;) (param $0 i32) (result i32)
+                    (local $1 i32)
+                    (local $2 i32)
+                    (local $3 i32)
+                    (local $4 i32)
+                    (set_local $4 (i32.const 1))
+                    (block $label$0
+                        (br_if $label$0 (i32.lt_s (get_local $0) (i32.const 1)))
+                        (set_local $3 (i32.const 0))
+                        (loop $label$1
+                        (set_local $1
+                        (i32.add (get_local $3) (get_local $4))
+                    )
+                    (set_local $2 (get_local $4))
+                    (set_local $3 (get_local $4))
+                    (set_local $4 (get_local $1))
+                    (br_if $label$1 (tee_local $0 (i32.add (get_local $0) (i32.const -1)))))
+                    (return (get_local $2))
+                )
+                (i32.const 0)
+            )
+        )
+        "#;
 
+        // NOTE this line makes compiling hang
         // let wasm = wat::parse_str(wat).expect("Failed to parse_str");
 
         // let engine = Engine::default();

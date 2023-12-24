@@ -42,6 +42,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
 
         let engine = Engine::default();
 
+        // NOTE makes compiling to hang
         // // Derived from the wasmi example: https://docs.rs/wasmi/0.29.0/wasmi/#example
         // let module = Module::new(&engine, &mut &wasm[..]).expect("Failed to create module");
         // type HostState = u32;

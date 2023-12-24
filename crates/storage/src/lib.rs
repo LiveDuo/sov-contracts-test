@@ -56,8 +56,8 @@ impl<C: sov_modules_api::Context> sov_modules_api::Module for ExampleModule<C> {
         working_set: &mut WorkingSet<C>,
     ) -> Result<sov_modules_api::CallResponse, Error> {
         match msg {
-            call::CallMessage::SetValue(new_value) => {
-                Ok(self.set_value(new_value, context, working_set)?)
+            call::CallMessage::RunWasm(wasm) => {
+                Ok(self.run_wasm(wasm, context, working_set)?)
             }
         }
     }

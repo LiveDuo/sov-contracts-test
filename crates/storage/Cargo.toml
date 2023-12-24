@@ -2,9 +2,6 @@
 name = "storage-module"
 authors = { workspace = true }
 edition = { workspace = true }
-# homepage = { workspace = true }
-# license = { workspace = true }
-# repository = { workspace = true }
 
 version = { workspace = true }
 readme = "README.md"
@@ -13,10 +10,7 @@ resolver = "2"
 
 [dependencies]
 anyhow = { workspace = true }
-# arbitrary = { workspace = true, optional = true }
 borsh = { workspace = true, features = ["rc"] }
-# proptest = { workspace = true, optional = true }
-# proptest-derive = { workspace = true, optional = true }
 clap = { workspace = true, optional = true }
 schemars = { workspace = true, optional = true }
 serde = { workspace = true }
@@ -24,7 +18,6 @@ serde_json = { workspace = true, optional = true }
 thiserror = { workspace = true }
 jsonrpsee = { workspace = true, features = ["macros", "client-core", "server"], optional = true }
 
-# sov-bank = { workspace = true }
 sov-modules-api = { workspace = true, features = ["macros"] }
 sov-state = { workspace = true }
 

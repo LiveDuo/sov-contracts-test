@@ -41,8 +41,8 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         let mut store = Store::new(&engine, 42);
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
 
-        let fib = instance.get_typed_func::<i32, i32>(&store, "fib").unwrap();
-        let res = fib.call(&mut store, 5).unwrap();
+        let inc = instance.get_typed_func::<i32, i32>(&store, "inc").unwrap();
+        let res = inc.call(&mut store, 5).unwrap();
         
         self.value.set(&res, working_set);
 

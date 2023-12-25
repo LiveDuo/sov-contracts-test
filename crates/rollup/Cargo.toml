@@ -38,7 +38,7 @@ serde_json = { workspace = true }
 jsonrpsee = { workspace = true }
 tokio = { workspace = true }
 
-risc0-starter = { path = "../provers/risc0" }
+# risc0-starter = { path = "../provers/risc0" }
 stf-starter = { path = "../stf", features = ["native"] }
 
 

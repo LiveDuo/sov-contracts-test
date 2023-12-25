@@ -21,14 +21,14 @@ use crate::ExampleModule;
 )]
 #[derive(borsh::BorshDeserialize, borsh::BorshSerialize, Debug, PartialEq)]
 pub enum CallMessage {
-    RunWasm(Vec<u8>),
-    DeployWasm(Vec<u8>),
+    CallContract(Vec<u8>),
+    DeployContract(Vec<u8>),
 }
 
 // NOTE compiling takes too long
 impl<C: sov_modules_api::Context> ExampleModule<C> {
 
-    pub(crate) fn deploy_wasm(
+    pub(crate) fn deploy_contract(
         &self,
         wasm: Vec<u8>,
         _context: &C,
@@ -41,7 +41,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         Ok(CallResponse::default())
     }
 
-    pub(crate) fn run_wasm(
+    pub(crate) fn call_contract(
         &self,
         wasm_id: Vec<u8>,
         _context: &C,

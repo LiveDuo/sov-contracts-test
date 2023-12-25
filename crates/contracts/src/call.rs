@@ -2,11 +2,13 @@ use std::fmt::Debug;
 
 use anyhow::Result;
 use sov_modules_api::prelude::*;
-use sov_modules_api::{CallResponse, WorkingSet};
+use sov_modules_api::*;
 #[cfg(feature = "native")]
 use sov_modules_api::macros::CliWalletArg;
 
 use wasmi::{Engine, Linker, Module, Store};
+
+use sov_modules_api::digest::Digest;
 
 use crate::ExampleModule;
 
@@ -20,17 +22,33 @@ use crate::ExampleModule;
 #[derive(borsh::BorshDeserialize, borsh::BorshSerialize, Debug, PartialEq)]
 pub enum CallMessage {
     RunWasm(Vec<u8>),
+    DeployWasm(Vec<u8>),
 }
 
 // NOTE compiling takes too long
 impl<C: sov_modules_api::Context> ExampleModule<C> {
 
-    pub(crate) fn run_wasm(
+    pub(crate) fn deploy_wasm(
         &self,
         wasm: Vec<u8>,
         _context: &C,
         working_set: &mut WorkingSet<C>,
     ) -> Result<sov_modules_api::CallResponse> {
+
+        let wasm_id: [u8; 32] = <C as Spec>::Hasher::digest(&wasm).into();
+        self.code.set(&wasm_id.to_vec(), &wasm, working_set);
+
+        Ok(CallResponse::default())
+    }
+
+    pub(crate) fn run_wasm(
+        &self,
+        wasm_id: Vec<u8>,
+        _context: &C,
+        working_set: &mut WorkingSet<C>,
+    ) -> Result<sov_modules_api::CallResponse> {
+
+        let wasm = self.code.get(&wasm_id, working_set).unwrap();
 
         let engine = Engine::default();
 
@@ -44,7 +62,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         let inc = instance.get_typed_func::<i32, i32>(&store, "inc").unwrap();
         let res = inc.call(&mut store, 5).unwrap();
         
-        self.value.set(&res, working_set);
+        self.result.set(&res, working_set);
 
         Ok(CallResponse::default())
     }

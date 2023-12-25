@@ -12,7 +12,7 @@ pub struct Response {
     pub value: Option<i32>,
 }
 
-#[rpc_gen(client, server, namespace = "storage")]
+#[rpc_gen(client, server, namespace = "contracts")]
 impl<C: sov_modules_api::Context> ExampleModule<C> {
     
     #[rpc_method(name = "getValue")]

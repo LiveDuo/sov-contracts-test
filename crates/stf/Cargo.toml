@@ -21,7 +21,7 @@ sov-sequencer = { workspace = true, optional = true }
 sov-rollup-interface = { workspace = true }
 tracing = "0.1.37"
 
-storage-module = { path = "../storage" }
+contracts-module = { path = "../contracts" }
 
 anyhow = { workspace = true }
 serde = { workspace = true, features = ["derive", "rc"] }
@@ -43,7 +43,7 @@ native = [
     "sov-mock-da/native",
     "sov-modules-stf-blueprint/native",
     "sov-stf-runner/native",
-    "storage-module/native",
+    "contracts-module/native",
     "serde_json",
     "serde",
     "serde_json",

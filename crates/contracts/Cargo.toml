@@ -1,5 +1,5 @@
 [package]
-name = "storage-module"
+name = "contracts-module"
 authors = { workspace = true }
 edition = { workspace = true }
 
@@ -26,7 +26,7 @@ wat = "<1.0.72"
 
 [dev-dependencies]
 tempfile = { workspace = true }
-storage-module = { path = ".", version = "*", features = ["native"] }
+contracts-module = { path = ".", version = "*", features = ["native"] }
 
 [features]
 default = []

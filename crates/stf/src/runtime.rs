@@ -18,7 +18,7 @@ use sov_modules_api::{Context, DaSpec, DispatchCall, Genesis, MessageCodec};
 pub use sov_sequencer_registry::{SequencerRegistryRpcImpl, SequencerRegistryRpcServer};
 
 #[cfg(feature = "native")]
-use storage_module::{ExampleModuleRpcImpl, ExampleModuleRpcServer};
+use contracts_module::{ExampleModuleRpcImpl, ExampleModuleRpcServer};
 
 #[cfg(feature = "native")]
 use crate::genesis_config::GenesisPaths;
@@ -69,7 +69,7 @@ pub struct Runtime<C: Context, Da: DaSpec> {
     /// The sequencer registry module is responsible for authorizing users to sequencer rollup transactions
     pub sequencer_registry: sov_sequencer_registry::SequencerRegistry<C, Da>,
     /// The storage module is responsible for storing offchain data
-    pub storage: storage_module::ExampleModule<C>,
+    pub contracts: contracts_module::ExampleModule<C>,
 }
 
 impl<C, Da> sov_modules_stf_blueprint::Runtime<C, Da> for Runtime<C, Da>

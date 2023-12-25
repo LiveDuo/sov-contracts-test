@@ -754,6 +754,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "contracts-module"
+version = "0.3.0"
+dependencies = [
+ "anyhow",
+ "borsh",
+ "clap",
+ "contracts-module",
+ "jsonrpsee",
+ "schemars",
+ "serde",
+ "serde_json",
+ "sov-modules-api",
+ "sov-state",
+ "tempfile",
+ "thiserror",
+ "wasmi",
+ "wat",
+]
+
+[[package]]
 name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4126,6 +4146,7 @@ dependencies = [
  "anyhow",
  "borsh",
  "clap",
+ "contracts-module",
  "jsonrpsee",
  "serde",
  "serde_json",
@@ -4139,28 +4160,7 @@ dependencies = [
  "sov-sequencer-registry",
  "sov-state",
  "sov-stf-runner",
- "storage-module",
  "tracing",
-]
-
-[[package]]
-name = "storage-module"
-version = "0.3.0"
-dependencies = [
- "anyhow",
- "borsh",
- "clap",
- "jsonrpsee",
- "schemars",
- "serde",
- "serde_json",
- "sov-modules-api",
- "sov-state",
- "storage-module",
- "tempfile",
- "thiserror",
- "wasmi",
- "wat",
 ]
 
 [[package]]

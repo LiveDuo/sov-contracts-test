@@ -1,4 +1,4 @@
-use storage_module::{ ExampleModule, CallMessage, ExampleModuleConfig };
+use contracts_module::{ ExampleModule, CallMessage, ExampleModuleConfig };
 use sov_modules_api::utils::generate_address;
 use sov_modules_api::{Context, WorkingSet, Module};
 use sov_modules_api::default_context::DefaultContext;

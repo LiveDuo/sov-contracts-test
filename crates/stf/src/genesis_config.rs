@@ -6,7 +6,7 @@ use sov_bank::BankConfig;
 use sov_modules_api::{Context, DaSpec};
 use sov_modules_stf_blueprint::Runtime as RuntimeTrait;
 use sov_sequencer_registry::SequencerConfig;
-use storage_module::ExampleModuleConfig;
+use contracts_module::ExampleModuleConfig;
 
 use sov_stf_runner::read_json_file;
 
@@ -21,8 +21,8 @@ pub struct GenesisPaths {
     pub bank_genesis_path: PathBuf,
     /// Sequencer Registry genesis path.
     pub sequencer_genesis_path: PathBuf,
-    /// Storage module genesis path.
-    pub storage_genesis_path: PathBuf,
+    /// Contracts module genesis path.
+    pub contracts_genesis_path: PathBuf,
 }
 
 impl GenesisPaths {
@@ -36,7 +36,7 @@ impl GenesisPaths {
             accounts_genesis_path: dir.as_ref().join("accounts.json"),
             bank_genesis_path: dir.as_ref().join("bank.json"),
             sequencer_genesis_path: dir.as_ref().join("sequencer_registry.json"),
-            storage_genesis_path: dir.as_ref().join("storage.json"),
+            contracts_genesis_path: dir.as_ref().join("contracts.json"),
         }
     }
 }
@@ -82,13 +82,13 @@ fn create_genesis_config<C: Context, Da: DaSpec>(
     let bank_config: BankConfig<C> = read_json_file(&genesis_paths.bank_genesis_path)?;
     let sequencer_registry_config: SequencerConfig<C, Da> =
         read_json_file(&genesis_paths.sequencer_genesis_path)?;
-    let storage_config: ExampleModuleConfig =
-        read_json_file(&genesis_paths.storage_genesis_path)?;
+    let contracts_config: ExampleModuleConfig =
+        read_json_file(&genesis_paths.contracts_genesis_path)?;
 
     Ok(GenesisConfig::new(
         accounts_config,
         bank_config,
         sequencer_registry_config,
-        storage_config,
+        contracts_config,
     ))
 }

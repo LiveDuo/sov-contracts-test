@@ -6,7 +6,7 @@ use sov_modules_api::*;
 #[cfg(feature = "native")]
 use sov_modules_api::macros::CliWalletArg;
 
-use wasmi::{Engine, Linker, Module, Store};
+use wasmi::{Engine, Linker, Module, Store, Caller};
 
 use sov_modules_api::digest::Digest;
 
@@ -59,7 +59,15 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         // https://docs.rs/wasmi/0.29.0/wasmi/#example
         let module = Module::new(&engine, &mut &wasm[..]).unwrap();
 
-        let linker = <Linker<u32>>::new(&engine);
+        let mut linker = <Linker<u32>>::new(&engine);
+        linker.func_wrap("host", "_func_host", |_caller: Caller<'_, u32>, param: i32| {
+            
+            println!("Function params: {}", param);
+            
+            // println!("Caller data: {:?}", caller.data());
+            // TODO self.result.set(&param, working_set).unwrap();
+        }).unwrap();
+
         let mut store = Store::new(&engine, 42);
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
 

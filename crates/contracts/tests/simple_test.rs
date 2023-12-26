@@ -25,7 +25,16 @@ fn simple_test() {
   dbg!(response);
 
   // get wasm
-  let wat = "(module (func (export \"inc\") (param i32) (result i32) local.get 0 i32.const 1 i32.add))";
+  let wat = r#"(module 
+    (import "host" "_func_host" (func $host_func (param i32)))
+    (func (export "inc") (param i32) (result i32)
+      i32.const 1
+      call $host_func
+      local.get 0
+      i32.const 1
+      i32.add
+    )
+  )"#;
   let wasm = wat::parse_str(wat).unwrap();
   
   // deploy wasm

@@ -1,4 +1,6 @@
 use std::fmt::Debug;
+use std::cell::RefCell;
+use std::sync::Arc;
 
 use anyhow::Result;
 
@@ -57,16 +59,19 @@ impl<C: Context> ExampleModule<C> {
         let engine = Engine::default();
         let module = Module::new(&engine, &mut &wasm[..]).unwrap();
 
-        let mut linker = <Linker<()>>::new(&engine);
-        linker.func_wrap("host", "store_param", |_caller: Caller<'_, ()>, index: i32, param: i32| {
+        // type StorageMap = StateMap<Vec<u8>, StateMap<u32, i32>>;
+        
+        let mut linker = Linker::new(&engine);
+        linker.func_wrap("host", "store_param", |caller: Caller<'_, Arc<RefCell<u32>>>, index: i32, param: i32| {
             
             println!("Store {} to storage slot {}", param, index);
             
-            // println!("Caller data: {:?}", caller.data());
-            // TODO self.storage.set(&wasm_id, &param, working_set).unwrap();
+            let mut counter = caller.data().borrow_mut();
+            *counter += 1;
         }).unwrap();
 
-        let mut store = Store::new(&engine, ());
+        let counter = Arc::new(RefCell::new(42));
+        let mut store = Store::new(&engine, counter.clone());
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
 
         let func = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();

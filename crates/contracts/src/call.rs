@@ -29,15 +29,15 @@ pub enum CallMessage {
     CallContract { wasm_id: Vec<u8>, method_name: String, }
 }
 
-// NOTE compiling takes too long
-impl<C: sov_modules_api::Context> ExampleModule<C> {
+// NOTE compiling with the prover takes too long
+impl<C: Context> ExampleModule<C> {
 
     pub(crate) fn deploy_contract(
         &self,
         wasm: Vec<u8>,
         _context: &C,
         working_set: &mut WorkingSet<C>,
-    ) -> Result<sov_modules_api::CallResponse> {
+    ) -> Result<CallResponse> {
 
         let wasm_id: [u8; 32] = <C as Spec>::Hasher::digest(&wasm).into();
         self.code.set(&wasm_id.to_vec(), &wasm, working_set);
@@ -51,7 +51,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         method_name: String,
         _context: &C,
         working_set: &mut WorkingSet<C>,
-    ) -> Result<sov_modules_api::CallResponse> {
+    ) -> Result<CallResponse> {
 
         let wasm = self.code.get(&wasm_id, working_set).unwrap();
 

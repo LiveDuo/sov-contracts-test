@@ -19,9 +19,9 @@ pub struct ExampleModule<C: Context> {
 
     #[state]
     pub code: StateMap<Vec<u8>, Vec<u8>>,
-    
+
     #[state]
-    pub result: StateValue<i32>,
+    pub storage: StateMap<Vec<u8>, StateMap<u32, i32>>,
 }
 
 impl<C: Context> Module for ExampleModule<C> {

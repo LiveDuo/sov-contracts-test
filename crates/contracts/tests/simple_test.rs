@@ -20,10 +20,6 @@ fn simple_test() {
   let module: ExampleModule<DefaultContext> = ExampleModule::default();
   module.genesis(&ExampleModuleConfig {}, &mut working_set).unwrap();
 
-  // check response
-  let response = module.query_result(&mut working_set).unwrap();
-  dbg!(response);
-
   // get wasm
   let wat = r#"(module 
     (import "host" "store_param" (func $store_param (param i32)))
@@ -42,18 +38,22 @@ fn simple_test() {
     )
   )"#;
   let wasm = wat::parse_str(wat).unwrap();
+  let wasm_id: [u8; 32] = <DefaultContext as Spec>::Hasher::digest(&wasm).into();
+
+  // check response
+  let response = module.query_result(wasm_id.to_vec(), 0, &mut working_set).unwrap();
+  dbg!(response);
   
   // deploy wasm
   let update_message = CallMessage::DeployContract { wasm_code: wasm.clone() };
   module.call(update_message, &sender_context, &mut working_set).unwrap();
 
   // call contract
-  let wasm_id: [u8; 32] = <DefaultContext as Spec>::Hasher::digest(&wasm).into();
   let update_message = CallMessage::CallContract { wasm_id: wasm_id.to_vec(), method_name: "inc".to_owned() };
   module.call(update_message, &sender_context, &mut working_set).unwrap();
 
   // check response
-  let response = module.query_result(&mut working_set).unwrap();
+  let response = module.query_result(wasm_id.to_vec(), 0, &mut working_set).unwrap();
   dbg!(response);
 
 }

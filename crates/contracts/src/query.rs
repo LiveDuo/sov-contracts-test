@@ -16,7 +16,8 @@ pub struct Response {
 impl<C: Context> ExampleModule<C> {
     
     #[rpc_method(name = "getResult")]
-    pub fn query_result(&self, working_set: &mut WorkingSet<C>) -> RpcResult<Response> {
-        Ok(Response { result: self.result.get(working_set) })
+    pub fn query_result(&self, wasm_id: Vec<u8>, index: u32, working_set: &mut WorkingSet<C>) -> RpcResult<Response> {
+        let result = self.storage.get(&wasm_id, working_set).map(|s| s.get(&index, working_set)).flatten();
+        Ok(Response { result })
     }
 }

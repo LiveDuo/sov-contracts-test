@@ -1,14 +1,15 @@
 use std::fmt::Debug;
 
 use anyhow::Result;
+
 use sov_modules_api::prelude::*;
 use sov_modules_api::*;
 #[cfg(feature = "native")]
 use sov_modules_api::macros::CliWalletArg;
+use sov_modules_api::digest::Digest;
+use sov_state::Prefix;
 
 use wasmi::{Engine, Linker, Module, Store, Caller};
-
-use sov_modules_api::digest::Digest;
 
 use crate::ExampleModule;
 
@@ -65,7 +66,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
             println!("Function params: {}", param);
             
             // println!("Caller data: {:?}", caller.data());
-            // TODO self.result.set(&param, working_set).unwrap();
+            // TODO self.storage.set(&wasm_id, &param, working_set).unwrap();
         }).unwrap();
 
         let mut store = Store::new(&engine, ());
@@ -74,7 +75,10 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         let inc = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
         let res = inc.call(&mut store, 5).unwrap();
         
-        self.result.set(&res, working_set);
+        let _storage_default = StateMap::<u32, i32>::new(Prefix::new(b"1".to_vec()));
+        let _storage = self.storage.get(&wasm_id, working_set).unwrap_or(_storage_default);
+        _storage.set(&0, &res, working_set);
+        self.storage.set(&wasm_id, &_storage, working_set);
 
         Ok(CallResponse::default())
     }

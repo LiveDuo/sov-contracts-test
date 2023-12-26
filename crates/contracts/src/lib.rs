@@ -11,6 +11,12 @@ use sov_modules_api::*;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExampleModuleConfig {}
 
+#[derive(borsh::BorshDeserialize, borsh::BorshSerialize)]
+pub struct Contract {
+    pub code: Vec<u8>,
+    pub storage: StateMap<u32, i32>,
+}
+
 #[cfg_attr(feature = "native", derive(ModuleCallJsonSchema))]
 #[derive(ModuleInfo)]
 pub struct ExampleModule<C: Context> {
@@ -18,10 +24,7 @@ pub struct ExampleModule<C: Context> {
     pub address: C::Address,
 
     #[state]
-    pub code: StateMap<Vec<u8>, Vec<u8>>,
-
-    #[state]
-    pub storage: StateMap<Vec<u8>, StateMap<u32, i32>>,
+    pub contracts: StateMap<Vec<u8>, Contract>,
 }
 
 impl<C: Context> Module for ExampleModule<C> {

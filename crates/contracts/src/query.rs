@@ -1,5 +1,5 @@
-use sov_modules_api::prelude::*;
 use sov_modules_api::{WorkingSet, Context};
+use sov_modules_api::StateMapAccessor;
 
 use super::ExampleModule;
 
@@ -17,7 +17,7 @@ impl<C: Context> ExampleModule<C> {
     
     #[rpc_method(name = "queryContract")]
     pub fn query_contract(&self, wasm_id: Vec<u8>, index: u32, working_set: &mut WorkingSet<C>) -> RpcResult<Response> {
-        let value = self.storage.get(&wasm_id, working_set).map(|s| s.get(&index, working_set)).flatten();
+        let value = self.contracts.get(&wasm_id, working_set).map(|s| s.storage.get(&index, working_set)).flatten();
         Ok(Response { value })
     }
 }

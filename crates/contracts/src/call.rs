@@ -3,20 +3,21 @@ use std::cell::RefCell;
 use std::sync::Arc;
 
 use anyhow::Result;
+use thiserror::Error;
 
+use sov_state::Prefix;
 use sov_modules_api::prelude::*;
 use sov_modules_api::*;
 #[cfg(feature = "native")]
 use sov_modules_api::macros::CliWalletArg;
 use sov_modules_api::digest::Digest;
-use sov_state::Prefix;
 
 use wasmi::{Engine, Linker, Module, Store, Caller, Config};
 
 use crate::ExampleModule;
 
 struct HostState<'a, C: Context> {
-    storage: &'a StateMap<Vec<u8>, StateMap<u32, i32>>,
+    contract: &'a crate::Contract,
     working_set: &'a mut WorkingSet<C>
 }
 
@@ -33,6 +34,15 @@ pub enum CallMessage {
     CallContract { wasm_id: Vec<u8>, method_name: String, method_param: i32, fuel_limit: u64 }
 }
 
+#[cfg(feature = "native")]
+#[derive(Debug, Error)]
+pub enum ContractError {
+    #[error("Contract already deployed")]
+    AlreadyDeployed,
+    #[error("Contract not exists")]
+    NotExists,
+}
+
 // NOTE: compiling with the prover takes ~6m
 impl<C: Context> ExampleModule<C> {
 
@@ -44,7 +54,13 @@ impl<C: Context> ExampleModule<C> {
     ) -> Result<CallResponse> {
 
         let wasm_id: [u8; 32] = <C as Spec>::Hasher::digest(&wasm).into();
-        self.code.set(&wasm_id.to_vec(), &wasm, working_set);
+        let contract_opt = self.contracts.get(&wasm_id.to_vec(), working_set);
+        if contract_opt.is_some() {
+            return Err(ContractError::AlreadyDeployed.into());
+        }
+        
+        let storage = StateMap::<u32, i32>::new(Prefix::new(wasm_id.to_vec()));
+        self.contracts.set(&wasm_id.to_vec(), &crate::Contract { code: wasm, storage }, working_set);
 
         Ok(CallResponse::default())
     }
@@ -60,13 +76,18 @@ impl<C: Context> ExampleModule<C> {
         working_set: &mut WorkingSet<C>,
     ) -> Result<CallResponse> {
 
-        let wasm = self.code.get(&wasm_id, working_set).unwrap();
+        let contract_opt = self.contracts.get(&wasm_id.to_vec(), working_set);
+        if contract_opt.is_none() {
+            return Err(ContractError::NotExists.into());
+        }
+
+        let contract = contract_opt.unwrap();
 
         let mut config = Config::default();
         config.consume_fuel(true);
         
         let engine = Engine::new(&config);
-        let module = Module::new(&engine, &mut &wasm[..]).unwrap();
+        let module = Module::new(&engine, &mut &contract.code[..]).unwrap();
 
         let mut linker = Linker::new(&engine);
         linker.func_wrap("host", "store_param", move |caller: Caller<'_, Arc<RefCell<HostState<C>>>>, index: i32, param: i32| {
@@ -74,13 +95,10 @@ impl<C: Context> ExampleModule<C> {
             println!("Store {} to storage slot {}", param, index);
             
             let mut state = caller.data().borrow_mut();
-            let contract_storage = state.storage.get(&wasm_id, state.working_set)
-                .unwrap_or_else(|| StateMap::<u32, i32>::new(Prefix::new(wasm_id.clone())));
-            contract_storage.set(&0, &param, state.working_set);
-            state.storage.set(&wasm_id, &contract_storage, state.working_set);
+            state.contract.storage.set(&(index as u32), &param, state.working_set); // TODO fix
         }).unwrap();
 
-        let state = Arc::new(RefCell::new(HostState { storage: &self.storage, working_set }));
+        let state = Arc::new(RefCell::new(HostState { contract: &contract, working_set }));
         let mut store = Store::new(&engine, state);
         store.add_fuel(fuel_limit).unwrap();
 

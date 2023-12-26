@@ -22,7 +22,7 @@ sov-modules-api = { workspace = true, features = ["macros"] }
 sov-state = { workspace = true }
 
 wasmi = "0.29"
-wat = "<1.0.72"
+wat = "1.0.82"
 
 [dev-dependencies]
 tempfile = { workspace = true }

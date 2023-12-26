@@ -28,8 +28,14 @@ fn simple_test() {
   let wat = r#"(module 
     (import "host" "store_param" (func $store_param (param i32)))
     (func (export "inc") (param i32) (result i32)
+      
+      ;; add and store
+      local.get 0
       i32.const 1
+      i32.add
       call $store_param
+
+      ;; add and return
       local.get 0
       i32.const 1
       i32.add

@@ -30,7 +30,7 @@ struct HostState<'a, C: Context> {
 #[derive(borsh::BorshDeserialize, borsh::BorshSerialize, Debug, PartialEq)]
 pub enum CallMessage {
     DeployContract{ wasm_code: Vec<u8> },
-    CallContract { wasm_id: Vec<u8>, method_name: String, method_param: i32 }
+    CallContract { wasm_id: Vec<u8>, method_name: String, method_param: i32, fuel_limit: u64 }
 }
 
 // NOTE: compiling with the prover takes ~6m
@@ -55,6 +55,7 @@ impl<C: Context> ExampleModule<C> {
         wasm_id: Vec<u8>,
         method_name: String,
         method_param: i32,
+        fuel_limit: u64,
         _context: &C,
         working_set: &mut WorkingSet<C>,
     ) -> Result<CallResponse> {
@@ -81,8 +82,8 @@ impl<C: Context> ExampleModule<C> {
 
         let state = Arc::new(RefCell::new(HostState { storage: &self.storage, working_set }));
         let mut store = Store::new(&engine, state);
-        store.add_fuel(100).unwrap();
-        
+        store.add_fuel(fuel_limit).unwrap();
+
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
         let func = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
         func.call(&mut store, method_param).unwrap();

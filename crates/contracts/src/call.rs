@@ -69,8 +69,8 @@ impl<C: Context> ExampleModule<C> {
         let mut store = Store::new(&engine, ());
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
 
-        let inc = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
-        let res = inc.call(&mut store, method_param).unwrap();
+        let func = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
+        let res = func.call(&mut store, method_param).unwrap();
         
         let contract_storage = self.storage.get(&wasm_id, working_set)
             .unwrap_or_else(|| StateMap::<u32, i32>::new(Prefix::new(wasm_id.clone())));

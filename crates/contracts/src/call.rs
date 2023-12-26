@@ -59,8 +59,8 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         // https://docs.rs/wasmi/0.29.0/wasmi/#example
         let module = Module::new(&engine, &mut &wasm[..]).unwrap();
 
-        let mut linker = <Linker<u32>>::new(&engine);
-        linker.func_wrap("host", "_func_host", |_caller: Caller<'_, u32>, param: i32| {
+        let mut linker = <Linker<()>>::new(&engine);
+        linker.func_wrap("host", "store_param", |_caller: Caller<'_, ()>, param: i32| {
             
             println!("Function params: {}", param);
             
@@ -68,7 +68,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
             // TODO self.result.set(&param, working_set).unwrap();
         }).unwrap();
 
-        let mut store = Store::new(&engine, 42);
+        let mut store = Store::new(&engine, ());
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
 
         let inc = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();

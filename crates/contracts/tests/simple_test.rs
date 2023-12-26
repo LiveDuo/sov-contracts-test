@@ -26,10 +26,10 @@ fn simple_test() {
 
   // get wasm
   let wat = r#"(module 
-    (import "host" "_func_host" (func $host_func (param i32)))
+    (import "host" "store_param" (func $store_param (param i32)))
     (func (export "inc") (param i32) (result i32)
       i32.const 1
-      call $host_func
+      call $store_param
       local.get 0
       i32.const 1
       i32.add

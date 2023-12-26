@@ -43,7 +43,7 @@ fn simple_test() {
 
   // check response
   let response = module.query_contract(wasm_id.to_vec(), 0, &mut working_set).unwrap();
-  dbg!(response);
+  assert_eq!(response.value, None);
   
   // deploy wasm
   let update_message = CallMessage::DeployContract { wasm_code: wasm.clone() };
@@ -55,7 +55,7 @@ fn simple_test() {
 
   // check response
   let response = module.query_contract(wasm_id.to_vec(), 0, &mut working_set).unwrap();
-  dbg!(response);
+  assert_eq!(response.value, Some(6));
 
 }
 

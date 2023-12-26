@@ -61,9 +61,9 @@ impl<C: Context> ExampleModule<C> {
         let module = Module::new(&engine, &mut &wasm[..]).unwrap();
 
         let mut linker = <Linker<()>>::new(&engine);
-        linker.func_wrap("host", "store_param", |_caller: Caller<'_, ()>, param: i32| {
+        linker.func_wrap("host", "store_param", |_caller: Caller<'_, ()>, index: i32, param: i32| {
             
-            println!("Function params: {}", param);
+            println!("Store {} to storage slot {}", param, index);
             
             // println!("Caller data: {:?}", caller.data());
             // TODO self.storage.set(&wasm_id, &param, working_set).unwrap();

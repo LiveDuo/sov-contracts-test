@@ -12,6 +12,9 @@ use sov_modules_api::digest::Digest;
 
 use crate::ExampleModule;
 
+#[derive(borsh::BorshDeserialize, borsh::BorshSerialize, Debug, PartialEq)]
+struct CallContractParams { wasm_id: Vec<u8>, method_name: String, }
+
 #[cfg_attr(
     feature = "native",
     derive(serde::Serialize),
@@ -21,8 +24,8 @@ use crate::ExampleModule;
 )]
 #[derive(borsh::BorshDeserialize, borsh::BorshSerialize, Debug, PartialEq)]
 pub enum CallMessage {
-    CallContract(Vec<u8>),
-    DeployContract(Vec<u8>),
+    DeployContract{ wasm_code: Vec<u8> },
+    CallContract { wasm_id: Vec<u8>, method_name: String, }
 }
 
 // NOTE compiling takes too long
@@ -44,6 +47,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
     pub(crate) fn call_contract(
         &self,
         wasm_id: Vec<u8>,
+        method_name: String,
         _context: &C,
         working_set: &mut WorkingSet<C>,
     ) -> Result<sov_modules_api::CallResponse> {
@@ -59,7 +63,7 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         let mut store = Store::new(&engine, 42);
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
 
-        let inc = instance.get_typed_func::<i32, i32>(&store, "inc").unwrap();
+        let inc = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
         let res = inc.call(&mut store, 5).unwrap();
         
         self.result.set(&res, working_set);

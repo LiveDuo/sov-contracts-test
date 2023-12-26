@@ -29,12 +29,12 @@ fn simple_test() {
   let wasm = wat::parse_str(wat).unwrap();
   
   // deploy wasm
-  let update_message = CallMessage::DeployContract(wasm.clone());
+  let update_message = CallMessage::DeployContract { wasm_code: wasm.clone() };
   module.call(update_message, &sender_context, &mut working_set).unwrap();
 
   // call contract
   let wasm_id: [u8; 32] = <DefaultContext as Spec>::Hasher::digest(&wasm).into();
-  let update_message = CallMessage::CallContract(wasm_id.to_vec());
+  let update_message = CallMessage::CallContract { wasm_id: wasm_id.to_vec(), method_name: "inc".to_owned() };
   module.call(update_message, &sender_context, &mut working_set).unwrap();
 
   // check response

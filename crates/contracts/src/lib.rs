@@ -44,11 +44,11 @@ impl<C: Context> Module for ExampleModule<C> {
         working_set: &mut WorkingSet<C>,
     ) -> Result<CallResponse, Error> {
         match msg {
-            call::CallMessage::CallContract(wasm_id) => {
-                Ok(self.call_contract(wasm_id, context, working_set)?)
+            call::CallMessage::CallContract { wasm_id, method_name } => {
+                Ok(self.call_contract(wasm_id, method_name, context, working_set)?)
             },
-            call::CallMessage::DeployContract(wasm) => {
-                Ok(self.deploy_contract(wasm, context, working_set)?)
+            call::CallMessage::DeployContract { wasm_code } => {
+                Ok(self.deploy_contract(wasm_code, context, working_set)?)
             }
         }
     }

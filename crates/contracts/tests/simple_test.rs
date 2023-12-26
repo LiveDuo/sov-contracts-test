@@ -50,7 +50,7 @@ fn simple_test() {
   module.call(update_message, &sender_context, &mut working_set).unwrap();
 
   // call contract
-  let update_message = CallMessage::CallContract { wasm_id: wasm_id.to_vec(), method_name: "inc".to_owned() };
+  let update_message = CallMessage::CallContract { wasm_id: wasm_id.to_vec(), method_name: "inc".to_owned(), method_param: 5 };
   module.call(update_message, &sender_context, &mut working_set).unwrap();
 
   // check response

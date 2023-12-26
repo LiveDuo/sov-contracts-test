@@ -47,8 +47,8 @@ impl<C: Context> Module for ExampleModule<C> {
             call::CallMessage::DeployContract { wasm_code } => {
                 Ok(self.deploy_contract(wasm_code, context, working_set)?)
             },
-            call::CallMessage::CallContract { wasm_id, method_name } => {
-                Ok(self.call_contract(wasm_id, method_name, context, working_set)?)
+            call::CallMessage::CallContract { wasm_id, method_name, method_param } => {
+                Ok(self.call_contract(wasm_id, method_name, method_param, context, working_set)?)
             }
         }
     }

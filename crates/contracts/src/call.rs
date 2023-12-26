@@ -13,9 +13,6 @@ use wasmi::{Engine, Linker, Module, Store, Caller};
 
 use crate::ExampleModule;
 
-#[derive(borsh::BorshDeserialize, borsh::BorshSerialize, Debug, PartialEq)]
-struct CallContractParams { wasm_id: Vec<u8>, method_name: String, }
-
 #[cfg_attr(
     feature = "native",
     derive(serde::Serialize),
@@ -26,7 +23,7 @@ struct CallContractParams { wasm_id: Vec<u8>, method_name: String, }
 #[derive(borsh::BorshDeserialize, borsh::BorshSerialize, Debug, PartialEq)]
 pub enum CallMessage {
     DeployContract{ wasm_code: Vec<u8> },
-    CallContract { wasm_id: Vec<u8>, method_name: String, }
+    CallContract { wasm_id: Vec<u8>, method_name: String, method_param: i32 }
 }
 
 // NOTE compiling with the prover takes too long
@@ -49,6 +46,7 @@ impl<C: Context> ExampleModule<C> {
         &self,
         wasm_id: Vec<u8>,
         method_name: String,
+        method_param: i32,
         _context: &C,
         working_set: &mut WorkingSet<C>,
     ) -> Result<CallResponse> {
@@ -73,7 +71,7 @@ impl<C: Context> ExampleModule<C> {
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
 
         let inc = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
-        let res = inc.call(&mut store, 5).unwrap();
+        let res = inc.call(&mut store, method_param).unwrap();
         
         let _storage = self.storage.get(&wasm_id, working_set)
             .unwrap_or_else(|| StateMap::<u32, i32>::new(Prefix::new(wasm_id.clone())));

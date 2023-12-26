@@ -17,6 +17,8 @@ pub struct Contract {
     pub storage: StateMap<u32, i32>,
 }
 
+type ContractId = Vec<u8>;
+
 #[cfg_attr(feature = "native", derive(ModuleCallJsonSchema))]
 #[derive(ModuleInfo)]
 pub struct ExampleModule<C: Context> {
@@ -24,7 +26,7 @@ pub struct ExampleModule<C: Context> {
     pub address: C::Address,
 
     #[state]
-    pub contracts: StateMap<Vec<u8>, Contract>,
+    pub contracts: StateMap<ContractId, Contract>,
 }
 
 impl<C: Context> Module for ExampleModule<C> {

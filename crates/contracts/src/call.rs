@@ -15,6 +15,11 @@ use wasmi::{Engine, Linker, Module, Store, Caller};
 
 use crate::ExampleModule;
 
+struct HostState<'a, C: Context> {
+    storage: &'a StateMap<Vec<u8>, StateMap<u32, i32>>,
+    working_set: &'a mut WorkingSet<C>
+}
+
 #[cfg_attr(
     feature = "native",
     derive(serde::Serialize),
@@ -59,29 +64,25 @@ impl<C: Context> ExampleModule<C> {
         let engine = Engine::default();
         let module = Module::new(&engine, &mut &wasm[..]).unwrap();
 
-        // type StorageMap = StateMap<Vec<u8>, StateMap<u32, i32>>;
-        
         let mut linker = Linker::new(&engine);
-        linker.func_wrap("host", "store_param", |caller: Caller<'_, Arc<RefCell<u32>>>, index: i32, param: i32| {
+        linker.func_wrap("host", "store_param", move |caller: Caller<'_, Arc<RefCell<HostState<C>>>>, index: i32, param: i32| {
             
             println!("Store {} to storage slot {}", param, index);
             
-            let mut counter = caller.data().borrow_mut();
-            *counter += 1;
+            let mut state = caller.data().borrow_mut();
+            let contract_storage = state.storage.get(&wasm_id, state.working_set)
+                .unwrap_or_else(|| StateMap::<u32, i32>::new(Prefix::new(wasm_id.clone())));
+            contract_storage.set(&0, &param, state.working_set);
+            state.storage.set(&wasm_id, &contract_storage, state.working_set);
         }).unwrap();
 
-        let counter = Arc::new(RefCell::new(42));
-        let mut store = Store::new(&engine, counter.clone());
+        let state = Arc::new(RefCell::new(HostState { storage: &self.storage, working_set }));
+        let mut store = Store::new(&engine, state);
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
 
         let func = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
-        let res = func.call(&mut store, method_param).unwrap();
+        func.call(&mut store, method_param).unwrap();
         
-        let contract_storage = self.storage.get(&wasm_id, working_set)
-            .unwrap_or_else(|| StateMap::<u32, i32>::new(Prefix::new(wasm_id.clone())));
-        contract_storage.set(&0, &res, working_set);
-        self.storage.set(&wasm_id, &contract_storage, working_set);
-
         Ok(CallResponse::default())
     }
 }

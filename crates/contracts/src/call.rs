@@ -75,8 +75,8 @@ impl<C: sov_modules_api::Context> ExampleModule<C> {
         let inc = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
         let res = inc.call(&mut store, 5).unwrap();
         
-        let _storage_default = StateMap::<u32, i32>::new(Prefix::new(b"1".to_vec()));
-        let _storage = self.storage.get(&wasm_id, working_set).unwrap_or(_storage_default);
+        let _storage = self.storage.get(&wasm_id, working_set)
+            .unwrap_or_else(|| StateMap::<u32, i32>::new(Prefix::new(wasm_id.clone())));
         _storage.set(&0, &res, working_set);
         self.storage.set(&wasm_id, &_storage, working_set);
 

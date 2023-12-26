@@ -26,7 +26,7 @@ pub enum CallMessage {
     CallContract { wasm_id: Vec<u8>, method_name: String, method_param: i32 }
 }
 
-// NOTE compiling with the prover takes too long
+// NOTE: compiling with the prover takes ~6m
 impl<C: Context> ExampleModule<C> {
 
     pub(crate) fn deploy_contract(
@@ -42,6 +42,7 @@ impl<C: Context> ExampleModule<C> {
         Ok(CallResponse::default())
     }
 
+    // https://docs.rs/wasmi/0.29.0/wasmi/#example
     pub(crate) fn call_contract(
         &self,
         wasm_id: Vec<u8>,
@@ -54,8 +55,6 @@ impl<C: Context> ExampleModule<C> {
         let wasm = self.code.get(&wasm_id, working_set).unwrap();
 
         let engine = Engine::default();
-
-        // https://docs.rs/wasmi/0.29.0/wasmi/#example
         let module = Module::new(&engine, &mut &wasm[..]).unwrap();
 
         let mut linker = <Linker<()>>::new(&engine);
@@ -73,10 +72,10 @@ impl<C: Context> ExampleModule<C> {
         let inc = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
         let res = inc.call(&mut store, method_param).unwrap();
         
-        let _storage = self.storage.get(&wasm_id, working_set)
+        let contract_storage = self.storage.get(&wasm_id, working_set)
             .unwrap_or_else(|| StateMap::<u32, i32>::new(Prefix::new(wasm_id.clone())));
-        _storage.set(&0, &res, working_set);
-        self.storage.set(&wasm_id, &_storage, working_set);
+        contract_storage.set(&0, &res, working_set);
+        self.storage.set(&wasm_id, &contract_storage, working_set);
 
         Ok(CallResponse::default())
     }

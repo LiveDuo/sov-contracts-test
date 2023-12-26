@@ -41,7 +41,7 @@ fn simple_test() {
   let wasm_id: [u8; 32] = <DefaultContext as Spec>::Hasher::digest(&wasm).into();
 
   // check response
-  let response = module.query_result(wasm_id.to_vec(), 0, &mut working_set).unwrap();
+  let response = module.query_contract(wasm_id.to_vec(), 0, &mut working_set).unwrap();
   dbg!(response);
   
   // deploy wasm
@@ -53,7 +53,7 @@ fn simple_test() {
   module.call(update_message, &sender_context, &mut working_set).unwrap();
 
   // check response
-  let response = module.query_result(wasm_id.to_vec(), 0, &mut working_set).unwrap();
+  let response = module.query_contract(wasm_id.to_vec(), 0, &mut working_set).unwrap();
   dbg!(response);
 
 }

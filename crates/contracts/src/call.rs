@@ -11,7 +11,7 @@ use sov_modules_api::macros::CliWalletArg;
 use sov_modules_api::digest::Digest;
 use sov_state::Prefix;
 
-use wasmi::{Engine, Linker, Module, Store, Caller};
+use wasmi::{Engine, Linker, Module, Store, Caller, Config};
 
 use crate::ExampleModule;
 
@@ -61,7 +61,10 @@ impl<C: Context> ExampleModule<C> {
 
         let wasm = self.code.get(&wasm_id, working_set).unwrap();
 
-        let engine = Engine::default();
+        let mut config = Config::default();
+        config.consume_fuel(true);
+        
+        let engine = Engine::new(&config);
         let module = Module::new(&engine, &mut &wasm[..]).unwrap();
 
         let mut linker = Linker::new(&engine);
@@ -78,10 +81,14 @@ impl<C: Context> ExampleModule<C> {
 
         let state = Arc::new(RefCell::new(HostState { storage: &self.storage, working_set }));
         let mut store = Store::new(&engine, state);
+        store.add_fuel(100).unwrap();
+        
         let instance = linker.instantiate(&mut store, &module).unwrap().start(&mut store).unwrap();
-
         let func = instance.get_typed_func::<i32, i32>(&store, &method_name).unwrap();
         func.call(&mut store, method_param).unwrap();
+        
+        let consumed = store.fuel_consumed().unwrap();
+        println!("Fuel consumed: {}", consumed);
         
         Ok(CallResponse::default())
     }

@@ -95,7 +95,7 @@ impl<C: Context> ExampleModule<C> {
             println!("Store {} to storage slot {}", param, index);
             
             let mut state = caller.data().borrow_mut();
-            state.contract.storage.set(&(index as u32), &param, state.working_set); // TODO fix
+            state.contract.storage.set(&(index as u32), &param, state.working_set);
         }).unwrap();
 
         let state = Arc::new(RefCell::new(HostState { contract: &contract, working_set }));
